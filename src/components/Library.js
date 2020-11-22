@@ -1,9 +1,9 @@
 import React from 'react'
 import LibrarySong from './LibrarySong'
 
-export default function Library( {audioRef, setSongs, songs, setCurrentSong, isPlaying}) {
-    return (
-        <div className="library">
+export default function Library( {libraryStatus, audioRef, setSongs, songs, setCurrentSong, isPlaying}) {
+    return ( // multiple interpolations
+        <div className={`library ${libraryStatus ? 'active-library' : ''}`}>
             <h2>Library</h2>
             <div className="library-songs" >
                 {songs.map(song => (

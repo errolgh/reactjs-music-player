@@ -11,7 +11,16 @@ nav {
         padding: 0.5rem;
         transition: all 0.3s ease;
         &:hover{
-            background: rgb(65, 65, 65)
+            background: rgb(65, 65, 65);
+            color: white;
+        }
+    }
+}
+
+@media screen and (max-width: 768px) {
+    nav {
+        button {
+            z-index: 10;
         }
     }
 }

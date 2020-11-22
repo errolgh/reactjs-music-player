@@ -1,8 +1,8 @@
 export default function LibrarySong({ song, setSongs, songs, id, setCurrentSong, audioRef, isPlaying }){
 
-    const songSelectHandler = () => {
+    const songSelectHandler = async () => {
         const selectedSong = songs.filter(state => state.id === id)
-        setCurrentSong(selectedSong[0])
+        await setCurrentSong(selectedSong[0])
         //add active state
         const newSongs = songs.map(song => {
             if(song.id === id){
@@ -13,14 +13,7 @@ export default function LibrarySong({ song, setSongs, songs, id, setCurrentSong,
         })
         setSongs(newSongs)
         //check if song is playing
-        if(isPlaying){
-            const playPromise = audioRef.current.play()
-            if(playPromise !== undefined){
-                playPromise.then(audio => {
-                    audioRef.current.play()
-                })
-            }
-        }
+        if(isPlaying) audioRef.current.play()
     }
 
 

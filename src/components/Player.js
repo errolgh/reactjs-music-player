@@ -2,14 +2,29 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlay, faAngleRight, faAngleLeft, faPause } from '@fortawesome/free-solid-svg-icons'
 
 const Player = ({
-    // timeUpdateHandler,
     audioRef,
-    // currentSong,
+    songs,
     isPlaying, 
     setIsPlaying,
     songInfo,
-    setSongInfo
+    setSongInfo,
+    currentSong,
+    setCurrentSong,
+    setSongs
 }) => {
+
+
+    const activeLibraryHandler = (nextPrev) => {
+        //add active state
+        const newSongs = songs.map(song => {
+            if(song.id === nextPrev.id){
+                return {...song, active: true}
+            } else {
+                return {...song, active: false}
+            }
+        })
+    setSongs(newSongs)
+    }
 
     const playSongHandler = () => {
         if(isPlaying){
@@ -34,23 +49,67 @@ const Player = ({
     }
 
 
+    const skipTrackHandler = async direction => {
+        let currentIndex = songs.findIndex(song => song.id === currentSong.id)
+        if(direction === 'skip-forward'){
+            await setCurrentSong(songs[(currentIndex + 1) % songs.length])
+            activeLibraryHandler(songs[(currentIndex + 1) % songs.length])
+        }
+        if(direction === 'skip-back'){
+            if((currentIndex - 1) % songs.length === -1) {
+                await setCurrentSong(songs[songs.length - 1])
+                activeLibraryHandler(songs[songs.length -1])
+                if(isPlaying) audioRef.current.play()
+                return
+            }
+            await setCurrentSong(songs[(currentIndex - 1) % songs.length])
+            activeLibraryHandler(songs[(currentIndex - 1) % songs.length])
+        }
+        if(isPlaying) audioRef.current.play()
+    }
+//add slider style
+
+    const trackAnim = {
+        transform: `translateX(${songInfo.animationPercentage}%)`
+    }
     return(
         <div className="player">
             <div className="time-control">
                 <p>{getTime(songInfo.currentTime)}</p>
-                <input 
-                    minimum={0} 
-                    maximum={songInfo.duration || "0:00"} //could use useEfect for 'NaN glitch
-                    value={songInfo.currentTime} 
-                    onChange={dragHandler}
-                    type="range"
-                 />
-                <p>{getTime(songInfo.duration)}</p>
+                <div 
+                    style={{background: `linear-gradient(to right, ${currentSong.color[0]}, ${currentSong.color[1]})`}} 
+                    className="track"
+                >
+                    <input 
+                        minimum={0} 
+                        maximum={songInfo.duration || 0} //could use useEfect for 'NaN glitch
+                        value={songInfo.currentTime} 
+                        onChange={dragHandler}
+                        type="range"
+                    />
+                    <div style={trackAnim} className="animate-track"></div>
+                </div>
+                <p>{songInfo.duration ? getTime(songInfo.duration) : '0:00'  /*removes NaN*/}</p> 
             </div>
             <div className="play-control">
-                <FontAwesomeIcon  className="skip-back" size="2x" icon={ faAngleLeft } />
-                <FontAwesomeIcon  onClick={ playSongHandler } className="play" size="2x" icon={ isPlaying ? faPause : faPlay } />
-                <FontAwesomeIcon  className="skip-forward" size="2x" icon={ faAngleRight } />
+                <FontAwesomeIcon  
+                    onClick={()=>skipTrackHandler('skip-back')} 
+                    className="skip-back" 
+                    size="2x" 
+                    icon={ faAngleLeft }
+                />
+                <FontAwesomeIcon  
+                    onClick={ playSongHandler } 
+                    className="play" 
+                    size="2x" 
+                    icon={ isPlaying ? faPause : faPlay }
+                />
+                <FontAwesomeIcon  
+                    onClick={()=>skipTrackHandler('skip-forward')} 
+                    className="skip-forward" 
+                    size="2x" 
+                    icon={ faAngleRight }
+                />
             </div>
         </div>
     )
